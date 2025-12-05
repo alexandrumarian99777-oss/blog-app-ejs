@@ -1,0 +1,32 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <a href="/" class="back-btn">← Back to Blogs</a>
+  
+  <article class="blog-detail">
+    <img src="<%= blog.imageUrl %>" alt="<%= blog.title %>">
+    
+    <h1><%= blog.title %></h1>
+    
+    <div class="blog-detail-meta">
+      <span>👤 By <%= blog.author %></span>
+      <span>📅 <%= new Date(blog.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+      <span>🏷️ <%= blog.category %></span>
+    </div>
+    
+    <div class="blog-detail-content">
+      <%- blog.content.replace(/\n/g, '</p><p>') %>
+    </div>
+    
+    <% if (blog.tags && blog.tags.length > 0) { %>
+      <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--border-color);">
+        <strong>Tags:</strong>
+        <% blog.tags.forEach(tag => { %>
+          <span class="blog-category" style="margin-left: 0.5rem;"><%= tag %></span>
+        <% }) %>
+      </div>
+    <% } %>
+  </article>
+</div>
+
+<%- include('partials/footer') %>
