@@ -50,9 +50,9 @@
               <td><%= new Date(blog.createdAt).toLocaleDateString() %></td>
               <td>
                 <div class="action-buttons">
-                  <a href="/blog/<%= blog._id %>" class="admin-btn btn-small admin-btn-secondary">View</a>
-                  <a href="/admin/edit-blog/<%= blog._id %>" class="admin-btn btn-small">Edit</a>
-                  <form method="POST" action="/admin/delete-blog/<%= blog._id %>" style="display: inline;">
+                 <a href="/blog/<%= blog.slug %>" class="admin-btn btn-small admin-btn-secondary">View</a>
+                  <a href="/admin/edit-blog/<%= blog._slug %>" class="admin-btn btn-small">Edit</a>
+                  <form method="POST" action="/admin/delete-blog/<%= blog._slug %>" style="display: inline;">
                     <button type="submit" class="admin-btn btn-small admin-btn-danger" onclick="return confirm('Delete this blog?')">Delete</button>
                   </form>
                 </div>
