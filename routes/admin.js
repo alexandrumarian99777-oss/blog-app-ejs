@@ -16,12 +16,12 @@ router.get('/login', (req, res) => {
 // Admin login POST
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  
+
   if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
     req.session.isAdmin = true;
     return res.redirect('/admin/dashboard');
   }
-  
+
   res.render('admin/login', { error: 'Invalid credentials' });
 });
 
@@ -30,7 +30,6 @@ router.get('/dashboard', isAuthenticated, async (req, res) => {
   try {
     const blogs = await Blog.find().sort({ createdAt: -1 });
     const reviews = await Review.find().sort({ createdAt: -1 });
-    
     res.render('admin/dashboard', { blogs, reviews });
   } catch (error) {
     console.error(error);
@@ -43,7 +42,7 @@ router.get('/create-blog', isAuthenticated, (req, res) => {
   res.render('admin/create-blog', { blog: null, error: null });
 });
 
-// Create blog POST (ONLY ONE)
+// Create blog POST
 router.post('/create-blog', isAuthenticated, async (req, res) => {
   try {
     const { title, content, excerpt, author, imageUrl, category, tags } = req.body;
@@ -56,21 +55,26 @@ router.post('/create-blog', isAuthenticated, async (req, res) => {
       imageUrl: imageUrl || 'https://via.placeholder.com/800x400',
       category: category || 'General',
       tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-      published: true          // final fix
+      published: true
     });
 
     await blog.save();
     res.redirect('/admin/dashboard');
+
   } catch (error) {
     console.error(error);
     res.render('admin/create-blog', { blog: null, error: 'Failed to create blog' });
   }
 });
 
-// Edit blog page
-router.get('/edit-blog/:id', isAuthenticated, async (req, res) => {
+/////////////////////////////
+// EDIT BLOG (SLUG VERSION)
+/////////////////////////////
+
+router.get('/edit-blog/:slug', isAuthenticated, async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id);
+    const blog = await Blog.findOne({ slug: req.params.slug });
+    if (!blog) return res.status(404).send('Blog not found');
     res.render('admin/create-blog', { blog, error: null });
   } catch (error) {
     console.error(error);
@@ -78,32 +82,38 @@ router.get('/edit-blog/:id', isAuthenticated, async (req, res) => {
   }
 });
 
-// Update blog POST
-router.post('/edit-blog/:id', isAuthenticated, async (req, res) => {
+router.post('/edit-blog/:slug', isAuthenticated, async (req, res) => {
   try {
     const { title, content, excerpt, author, imageUrl, category, tags } = req.body;
-    
-    await Blog.findByIdAndUpdate(req.params.id, {
-      title,
-      content,
-      excerpt,
-      author,
-      imageUrl,
-      category,
-      tags: tags ? tags.split(',').map(tag => tag.trim()) : []
-    });
-    
+
+    await Blog.findOneAndUpdate(
+      { slug: req.params.slug },
+      {
+        title,
+        content,
+        excerpt,
+        author,
+        imageUrl,
+        category,
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : []
+      }
+    );
+
     res.redirect('/admin/dashboard');
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Server Error');
   }
 });
 
-// Delete blog
-router.post('/delete-blog/:id', isAuthenticated, async (req, res) => {
+/////////////////////////////
+// DELETE BLOG (SLUG VERSION)
+/////////////////////////////
+
+router.post('/delete-blog/:slug', isAuthenticated, async (req, res) => {
   try {
-    await Blog.findByIdAndDelete(req.params.id);
+    await Blog.findOneAndDelete({ slug: req.params.slug });
     res.redirect('/admin/dashboard');
   } catch (error) {
     console.error(error);
@@ -111,20 +121,21 @@ router.post('/delete-blog/:id', isAuthenticated, async (req, res) => {
   }
 });
 
-// Create review POST
+// Create review
 router.post('/create-review', isAuthenticated, async (req, res) => {
   try {
     const { name, rating, comment } = req.body;
-    
+
     const review = new Review({
       name,
       rating: parseInt(rating),
       comment,
       avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`
     });
-    
+
     await review.save();
     res.redirect('/admin/dashboard');
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Server Error');

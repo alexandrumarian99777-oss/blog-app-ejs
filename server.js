@@ -27,8 +27,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Routes
-app.use('/', require('./routes/blog'));
 app.use('/admin', require('./routes/admin'));
+app.use('/', require('./routes/blog'));
 
 // 404 handler
 app.use((req, res) => {
