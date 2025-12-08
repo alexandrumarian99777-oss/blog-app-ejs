@@ -1,25 +1,24 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
-const BlogSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+const blogSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
   slug: { type: String, unique: true },
-  category: { type: String, required: true },
   content: { type: String, required: true },
-  author: { type: String, default: "Admin" },
+  excerpt: { type: String, required: true, maxlength: 200 },
+  author: { type: String, default: 'Admin' },
+  imageUrl: { type: String, default: 'https://via.placeholder.com/800x400' },
+  category: { type: String, default: 'General' },
+  tags: [{ type: String }],
+  published: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });
 
-// Auto-create slug before saving
-BlogSchema.pre('save', function (next) {
+// Auto-generate slug
+blogSchema.pre('save', function (next) {
   if (!this.isModified('title')) return next();
-
-  this.slug = slugify(this.title, {
-    lower: true,
-    strict: true,
-  });
-
+  this.slug = slugify(this.title, { lower: true, strict: true });
   next();
 });
 
-module.exports = mongoose.model('Blog', BlogSchema);
+module.exports = mongoose.model('Blog', blogSchema);

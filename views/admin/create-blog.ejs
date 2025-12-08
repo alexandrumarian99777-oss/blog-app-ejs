@@ -19,7 +19,7 @@
     <% } %>
 
     <div class="form-container">
-      <form method="POST" action="<%= blog ? '/admin/edit-blog/' + blog._id : '/admin/create-blog' %>">
+      <form method="POST" action="<%= blog ? '/admin/edit-blog/' + blog.slug : '/admin/create-blog' %>">
         <div class="form-group">
           <label for="title">Title *</label>
           <input type="text" id="title" name="title" value="<%= blog ? blog.title : '' %>" required>
